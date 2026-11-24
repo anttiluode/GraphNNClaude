@@ -1,4 +1,6 @@
-runs/
-runs_pilot.log
+runs/*
+!runs/pilot_cpu_seed41/
+!runs/gate2_cpu_seed41/
+runs_*.log
 __pycache__/
 *.pyc

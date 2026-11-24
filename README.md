@@ -63,6 +63,64 @@ The defaults are K = 2, 4, 8, seeds 41/97/127, 1500 steps, and all five arms. Ea
 
 ### CPU pilot (seed 41, 600 steps): not the preregistered run
 
-_Pending._
+One seed, 600 steps, on a 2-core CPU. Raw numbers are in `runs/pilot_cpu_seed41/summary.json`; this is a pilot, not the preregistered three-seed run. "Chain" means every item rewritten once, then all of them read. "Floor" is the reconstruction error when reading from another example's memory.
+
+| K | Arm | Bytes per item | Chain: items right | Chain: all K right | Chain RGB MSE | Floor | Drift on untouched items |
+|---:|---|---:|---:|---:|---:|---:|---:|
+| 2 | **slots** | 448 | 100% | 100% | **0.0112** | 0.095 | 0 |
+| 2 | signed | 448 | 100% | 100% | 0.0180 | 0.091 | 0.00012 |
+| 2 | phase | 448 | 100% | 100% | 0.0185 | 0.092 | 0.00036 |
+| 2 | positive | 448 | 100% | 100% | 0.0202 | 0.089 | 0.00018 |
+| 2 | binary | 56 | 100% | 100% | 0.0243 | 0.087 | 0.00046 |
+| 4 | **slots** | 224 | 100% | 100% | **0.0152** | 0.092 | 0 |
+| 4 | signed | 224 | 99.2% | 96.9% | 0.0413 | 0.079 | 0.0069 |
+| 4 | phase | 224 | 97.7% | 90.6% | 0.0488 | 0.078 | 0.0070 |
+| 4 | positive | 224 | 97.9% | 92.2% | 0.0462 | 0.078 | 0.0088 |
+| 4 | binary | 28 | 95.3% | 81.2% | 0.0456 | 0.080 | 0.0086 |
+| 8 | **slots** | 112 | 100% | 100% | **0.0216** | 0.091 | 0 |
+| 8 | signed | 112 | 96.5% | 73.4% | 0.0554 | 0.071 | 0.0055 |
+| 8 | phase | 112 | 85.4% | 21.9% | 0.0596 | 0.071 | 0.0044 |
+| 8 | positive | 112 | 95.9% | 69.5% | 0.0596 | 0.075 | 0.0071 |
+| 8 | binary | 14 | 80.2% | 14.1% | 0.0647 | 0.072 | 0.0033 |
+
+**Reading, measured against the fixed interpretations:**
+
+- **Interpretation 1 holds in the pilot at every K.** Slots get every mark right at every K and have the lowest image error.
+- **The gap widens as the memory fills.**
+
+  | K | Signed edges vs slots, chain image error |
+  |---:|---:|
+  | 2 | 1.6× |
+  | 4 | 2.7× |
+  | 8 | 2.6× |
+
+  Slots with 112 bytes per image (K=8) reconstruct better than any edge arm with 448 bytes per image (K=2).
+- **The edge arms do not use all their memory.** At K=8 their image error sits at 78–91% of their own wrong-memory floor, though none is within the 10% line. Binary after the chain sits at 90.5% of its floor, right at that line.
+- **Among edge arms**, signed is best at K=4 and K=8. Phase and binary break down under repeated rewrites at K=8: only 22% and 14% of examples have all marks right.
+- **These are fixed transports trained 600 steps on CPU.** The three-seed, 1500-step GPU run is the real test.
+
+### Gate 2: is the loss in the reader or in the writer? (K=4)
+
+The edge transport here is **linear in the ping** (asserted in the self-test), so the reader's whole view of the memory is one fixed linear operator applied to one probe. Two explanations are possible:
+
+- **Reader bottleneck:** the bytes are all there, but one linear ping can't pull them out.
+- **Writer interference:** the shared write itself smears items together.
+
+Gate 2 separates them:
+
+| Arm | Bytes stored | How it is read |
+|---|---|---|
+| direct | signed | Signed transport, **plus the raw bytes handed to the decoder**, as the slot reader gets them |
+| signed_sweep | signed | Linear signed transport read at three ping pressures (0.5, 1, 2), each answer rescaled. On a linear medium the three are identical, so this is the null for the sweep. |
+| elastic | signed | An edge conducts only once the pressure across it passes a threshold set by its byte: strong edges open early, weak edges late. This makes the medium nonlinear in the ping. |
+| elastic_sweep | signed | Elastic edges read at the three pressures, like an oscillometric blood-pressure cuff, which sweeps cuff pressure to expose what a single reading can't |
+
+**Fixed interpretations:**
+
+- If `direct` closes most of the gap to slots, the reader is the bottleneck.
+- If `direct` still loses clearly, the damage happens at write time, and no reader, cuff included, can fix it.
+- `elastic_sweep` counts as a gain only if it beats both `elastic` and `signed_sweep` (the nonlinearity and the sweep each, alone).
+
+_Results pending._
 
 Upstream `graphnn/` files are copied from GraphNN (MIT); the valve transports follow GraphNNSol Gate 1.
