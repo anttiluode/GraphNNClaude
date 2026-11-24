@@ -50,6 +50,33 @@
       "bytes_per_item": 224.0,
       "shared_params": 43211,
       "train_seconds": 97.0
+    },
+    "K4/seed41/direct": {
+      "full": {
+        "item_mark": 0.99609375,
+        "all_marks": 0.984375,
+        "rgb_mse": 0.04181252792477608
+      },
+      "rewrite": {
+        "item_mark": 0.986328125,
+        "all_marks": 0.9453125,
+        "rgb_mse": 0.042066290974617004
+      },
+      "chain": {
+        "item_mark": 0.984375,
+        "all_marks": 0.9375,
+        "rgb_mse": 0.0415683351457119
+      },
+      "shuffled_floor": {
+        "item_mark": 0.509765625,
+        "all_marks": 0.0546875,
+        "rgb_mse": 0.07622485607862473
+      },
+      "untouched_drift": 0.005761439446359873,
+      "payload_bytes": 896,
+      "bytes_per_item": 224.0,
+      "shared_params": 43211,
+      "train_seconds": 98.3
     }
   }
 }
