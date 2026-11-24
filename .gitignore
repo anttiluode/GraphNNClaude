@@ -1,0 +1,4 @@
+runs/
+runs_pilot.log
+__pycache__/
+*.pyc
