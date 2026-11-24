@@ -158,6 +158,179 @@
       "bytes_per_item": 224.0,
       "shared_params": 43211,
       "train_seconds": 117.6
+    },
+    "K4/seed41/slots": {
+      "full": {
+        "item_mark": 1.0,
+        "all_marks": 1.0,
+        "rgb_mse": 0.015451351180672646
+      },
+      "rewrite": {
+        "item_mark": 1.0,
+        "all_marks": 1.0,
+        "rgb_mse": 0.015434345230460167
+      },
+      "chain": {
+        "item_mark": 1.0,
+        "all_marks": 1.0,
+        "rgb_mse": 0.015246856957674026
+      },
+      "shuffled_floor": {
+        "item_mark": 0.46875,
+        "all_marks": 0.0234375,
+        "rgb_mse": 0.09177888929843903
+      },
+      "untouched_drift": 0.0,
+      "payload_bytes": 896,
+      "bytes_per_item": 224.0,
+      "shared_params": 43211,
+      "train_seconds": 86.2
+    }
+  },
+  "means": {
+    "K4/signed": {
+      "full": {
+        "item_mark": 0.99219,
+        "all_marks": 0.96875,
+        "rgb_mse": 0.04176
+      },
+      "rewrite": {
+        "item_mark": 0.97852,
+        "all_marks": 0.91406,
+        "rgb_mse": 0.04225
+      },
+      "chain": {
+        "item_mark": 0.99219,
+        "all_marks": 0.96875,
+        "rgb_mse": 0.04129
+      },
+      "shuffled_floor": {
+        "item_mark": 0.50586,
+        "all_marks": 0.03125,
+        "rgb_mse": 0.07894
+      },
+      "untouched_drift": 0.006942,
+      "bytes_per_item": 224.0
+    },
+    "K4/direct": {
+      "full": {
+        "item_mark": 0.99609,
+        "all_marks": 0.98438,
+        "rgb_mse": 0.04181
+      },
+      "rewrite": {
+        "item_mark": 0.98633,
+        "all_marks": 0.94531,
+        "rgb_mse": 0.04207
+      },
+      "chain": {
+        "item_mark": 0.98438,
+        "all_marks": 0.9375,
+        "rgb_mse": 0.04157
+      },
+      "shuffled_floor": {
+        "item_mark": 0.50977,
+        "all_marks": 0.05469,
+        "rgb_mse": 0.07622
+      },
+      "untouched_drift": 0.005761,
+      "bytes_per_item": 224.0
+    },
+    "K4/elastic": {
+      "full": {
+        "item_mark": 0.99414,
+        "all_marks": 0.97656,
+        "rgb_mse": 0.04846
+      },
+      "rewrite": {
+        "item_mark": 0.98047,
+        "all_marks": 0.92188,
+        "rgb_mse": 0.04719
+      },
+      "chain": {
+        "item_mark": 0.98242,
+        "all_marks": 0.92969,
+        "rgb_mse": 0.04478
+      },
+      "shuffled_floor": {
+        "item_mark": 0.49609,
+        "all_marks": 0.09375,
+        "rgb_mse": 0.07961
+      },
+      "untouched_drift": 0.010928,
+      "bytes_per_item": 224.0
+    },
+    "K4/elastic_sweep": {
+      "full": {
+        "item_mark": 0.98633,
+        "all_marks": 0.94531,
+        "rgb_mse": 0.04842
+      },
+      "rewrite": {
+        "item_mark": 0.95703,
+        "all_marks": 0.83594,
+        "rgb_mse": 0.04785
+      },
+      "chain": {
+        "item_mark": 0.95312,
+        "all_marks": 0.82031,
+        "rgb_mse": 0.04621
+      },
+      "shuffled_floor": {
+        "item_mark": 0.5,
+        "all_marks": 0.07812,
+        "rgb_mse": 0.0767
+      },
+      "untouched_drift": 0.008772,
+      "bytes_per_item": 224.0
+    },
+    "K4/signed_sweep": {
+      "full": {
+        "item_mark": 0.99219,
+        "all_marks": 0.96875,
+        "rgb_mse": 0.04437
+      },
+      "rewrite": {
+        "item_mark": 0.98047,
+        "all_marks": 0.92188,
+        "rgb_mse": 0.04424
+      },
+      "chain": {
+        "item_mark": 0.98828,
+        "all_marks": 0.96094,
+        "rgb_mse": 0.04564
+      },
+      "shuffled_floor": {
+        "item_mark": 0.49414,
+        "all_marks": 0.04688,
+        "rgb_mse": 0.07716
+      },
+      "untouched_drift": 0.007298,
+      "bytes_per_item": 224.0
+    },
+    "K4/slots": {
+      "full": {
+        "item_mark": 1.0,
+        "all_marks": 1.0,
+        "rgb_mse": 0.01545
+      },
+      "rewrite": {
+        "item_mark": 1.0,
+        "all_marks": 1.0,
+        "rgb_mse": 0.01543
+      },
+      "chain": {
+        "item_mark": 1.0,
+        "all_marks": 1.0,
+        "rgb_mse": 0.01525
+      },
+      "shuffled_floor": {
+        "item_mark": 0.46875,
+        "all_marks": 0.02344,
+        "rgb_mse": 0.09178
+      },
+      "untouched_drift": 0.0,
+      "bytes_per_item": 224.0
     }
   }
 }

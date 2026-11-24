@@ -121,6 +121,23 @@ Gate 2 separates them:
 - If `direct` still loses clearly, the damage happens at write time, and no reader, cuff included, can fix it.
 - `elastic_sweep` counts as a gain only if it beats both `elastic` and `signed_sweep` (the nonlinearity and the sweep each, alone).
 
-_Results pending._
+**CPU result (seed 41, 600 steps, K=4).** Raw numbers are in `runs/gate2_cpu_seed41/summary.json`.
+
+| Arm | Chain: items right | Chain: all 4 right | Chain RGB MSE | Floor | Drift on untouched items |
+|---|---:|---:|---:|---:|---:|
+| **slots** | 100% | 100% | **0.0152** | 0.092 | 0 |
+| signed | 99.2% | 96.9% | 0.0413 | 0.079 | 0.0069 |
+| direct (signed + raw bytes to the decoder) | 98.4% | 93.8% | 0.0416 | 0.076 | 0.0058 |
+| elastic, single ping | 98.2% | 93.0% | 0.0448 | 0.080 | 0.0109 |
+| signed_sweep (null) | 98.8% | 96.1% | 0.0456 | 0.077 | 0.0073 |
+| elastic_sweep (the cuff) | 95.3% | 82.0% | 0.0462 | 0.077 | 0.0088 |
+
+**Reading:**
+
+- **The writer is the bottleneck, not the reader.** Handing the decoder every stored byte (`direct`, 0.0416) gives exactly what the transport alone gives (0.0413). The edge bytes simply do not contain the images that the slot bytes contain. The shared write mixes the four items together. Slots win because each item owns bytes that no other write touches; their drift is exactly zero.
+- **The cuff read on elastic valves fails its preregistered test.** It does not beat elastic with a single ping (0.0462 vs 0.0448), nor the linear sweep null (0.0462 vs 0.0456). That matches the first point: once the bytes don't hold the information, no way of reading them can bring it back.
+- **The pressure-dependent valve makes things slightly worse:** 0.0448 for elastic against 0.0413 for signed, and drift on untouched items rises to 0.0109.
+
+So in this setup the question "is the loss in the reader or the writer" has its answer: the writer. Any further idea for this memory has to change how it is written, for example by giving the writer a way to keep items in separate bytes. Changing how it is read will not help.
 
 Upstream `graphnn/` files are copied from GraphNN (MIT); the valve transports follow GraphNNSol Gate 1.
