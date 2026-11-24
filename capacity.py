@@ -31,6 +31,10 @@ from graphnn.model import JanusModel, ModelConfig, _angles
 from graphnn.rewrite import PALETTE
 
 MODES = ("positive", "signed", "binary", "phase", "slots")
+# Gate 2 (reader bottleneck and cuff read). "direct", "signed_sweep" and
+# "elastic_sweep" share signed bytes; only how the memory is READ differs.
+GATE2 = ("direct", "elastic", "elastic_sweep", "signed_sweep")
+SWEEP = (0.5, 1.0, 2.0)
 
 
 def pack_bits(x):
@@ -121,6 +125,15 @@ class Valve(nn.Module):
                                   vc * z[..., 1:, :], vc.conj() * z[..., :-1, :]) / deg
             return y.real, y.imag
         wh, wv = (h, v) if self.mode == "positive" else (2 * h - 1, 2 * v - 1)
+        if self.mode.startswith("elastic"):
+            # Elastic valve: a byte sets a signed opening, and how much pressure the
+            # edge needs before it conducts. Strong edges open at low pressure, weak
+            # edges only at high pressure, so the transport is NONLINEAR in the ping.
+            m = torch.sqrt(r.square() + i.square() + 1e-8)
+            ph = .5 * (m[..., :-1] + m[..., 1:])
+            pv = .5 * (m[..., :-1, :] + m[..., 1:, :])
+            wh = torch.tanh(3 * wh) * torch.sigmoid(6 * (ph - (1 - wh.abs())))
+            wv = torch.tanh(3 * wv) * torch.sigmoid(6 * (pv - (1 - wv.abs())))
         def scalar(z):
             return nbr(wh * z[..., 1:], wh * z[..., :-1], wv * z[..., 1:, :], wv * z[..., :-1, :])
         return .5 * r + .5 * scalar(r) / deg, .5 * i + .5 * scalar(i) / deg
@@ -134,6 +147,23 @@ class Valve(nn.Module):
             h, v = self.planes((2 * x - 1) * self.slot_mask(theta, x.dtype))
             h, v = F.pad(h, (0, 1, 0, 0)), F.pad(v, (0, 0, 0, 1))
             features = [r, i, h, v, r * h, i * v]
+        elif self.mode.endswith("sweep"):
+            # Cuff read: the same ping at three pressures, each answer rescaled.
+            # On a linear medium the three rescaled answers are identical.
+            h, v = self.planes(x)
+            features = []
+            for amp in SWEEP:
+                rr, ii = amp * r, amp * i
+                for _ in range(self.cfg.steps):
+                    rr, ii = self.transport(rr, ii, h, v)
+                features.extend((rr / amp, ii / amp))
+        elif self.mode == "direct":
+            # Signed transport, plus the raw bytes handed straight to the decoder.
+            h, v = self.planes(x)
+            hd, vd = F.pad(2 * h - 1, (0, 1, 0, 0)), F.pad(2 * v - 1, (0, 0, 0, 1))
+            for _ in range(self.cfg.steps):
+                r, i = self.transport(r, i, h, v)
+            features = [z.real, z.imag, r, i, hd, vd]
         else:
             h, v = self.planes(x)
             features = [r, i]
@@ -282,7 +312,19 @@ def self_test():
         assert batch["images"].shape == (4, k, 3, 32, 32)
         assert not torch.equal(batch["images"], batch["flipped"])
         params = set()
-        for mode in MODES:
+        # linear transport: the rescaled cuff answers must be identical
+        lin = Valve("signed_sweep", k)
+        x = torch.rand(4, lin.n)
+        h, v = lin.planes(x)
+        z = torch.randn(4, 8, 8, 8)
+        a = lin.transport(2 * z, 2 * z, h, v)[0] / 2
+        b = lin.transport(z, z, h, v)[0]
+        assert torch.allclose(a, b, atol=1e-5), "signed transport should be linear"
+        el = Valve("elastic", k)
+        a = el.transport(2 * z, 2 * z, h, v)[0] / 2
+        b = el.transport(z, z, h, v)[0]
+        assert not torch.allclose(a, b, atol=1e-3), "elastic transport should not be linear"
+        for mode in MODES + GATE2:
             model = Valve(mode, k)
             params.add(sum(p.numel() for p in model.parameters()))
             m = write_all(model, batch, quantize=True)
