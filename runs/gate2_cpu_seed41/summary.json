@@ -1,0 +1,55 @@
+{
+  "config": {
+    "ks": [
+      4
+    ],
+    "modes": [
+      "signed",
+      "direct",
+      "elastic",
+      "elastic_sweep",
+      "signed_sweep",
+      "slots"
+    ],
+    "seeds": [
+      41
+    ],
+    "steps": 600,
+    "batch_size": 8,
+    "train_count": 256,
+    "test_count": 128,
+    "lr": 0.003,
+    "device": "cpu",
+    "output": "runs/gate2_cpu_seed41",
+    "self_test": false
+  },
+  "runs": {
+    "K4/seed41/signed": {
+      "full": {
+        "item_mark": 0.9921875,
+        "all_marks": 0.96875,
+        "rgb_mse": 0.04176127538084984
+      },
+      "rewrite": {
+        "item_mark": 0.978515625,
+        "all_marks": 0.9140625,
+        "rgb_mse": 0.042253632098436356
+      },
+      "chain": {
+        "item_mark": 0.9921875,
+        "all_marks": 0.96875,
+        "rgb_mse": 0.041293978691101074
+      },
+      "shuffled_floor": {
+        "item_mark": 0.505859375,
+        "all_marks": 0.03125,
+        "rgb_mse": 0.07894059270620346
+      },
+      "untouched_drift": 0.0069420519284904,
+      "payload_bytes": 896,
+      "bytes_per_item": 224.0,
+      "shared_params": 43211,
+      "train_seconds": 97.0
+    }
+  }
+}
